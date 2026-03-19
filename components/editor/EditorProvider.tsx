@@ -9,7 +9,7 @@ import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
 import CodeBlock from "@tiptap/extension-code-block";
-import Image from "@tiptap/extension-image";
+import { CustomImage } from "./CustomImage";
 
 export type PreviewMode = "desktop" | "mobile";
 
@@ -52,10 +52,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
         dropcursor: false,
       }),
       CodeBlock,
-      Image.configure({
-        inline: true,
-        allowBase64: true,
-      }),
+      CustomImage,
       Underline,
       Link.configure({
         openOnClick: false,
