@@ -5,7 +5,7 @@ import { Monitor, Smartphone } from "lucide-react";
 import { useEmailEditor } from "../editor/EditorProvider";
 
 export default function PreviewPanel() {
-  const { editor, metadata, previewMode, setPreviewMode } = useEmailEditor();
+  const { metadata, previewMode, setPreviewMode, htmlContent } = useEmailEditor();
 
   const isMobile = previewMode === "mobile";
 
@@ -62,8 +62,8 @@ export default function PreviewPanel() {
 
           {/* Email Body HTML */}
           <div
-            className="p-6 text-[15px] text-gray-800 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&_a]:text-blue-600 [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: editor?.getHTML() || "" }}
+            className="p-6 text-[15px] text-gray-800 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&_a]:text-blue-600 [&_a]:underline prose prose-sm max-w-none wrap-break-word"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         </div>
       </div>

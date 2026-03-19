@@ -8,6 +8,8 @@ import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
+import CodeBlock from "@tiptap/extension-code-block";
+import Image from "@tiptap/extension-image";
 
 export type PreviewMode = "desktop" | "mobile";
 
@@ -25,6 +27,7 @@ interface EditorContextType {
   updateMetadata: (key: keyof EmailMetadata, value: string) => void;
   previewMode: PreviewMode;
   setPreviewMode: (mode: PreviewMode) => void;
+  htmlContent: string;
 }
 
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
@@ -39,10 +42,20 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   });
 
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
+  const [htmlContent, setHtmlContent] = useState<string>("");
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+        gapcursor: false,
+        dropcursor: false,
+      }),
+      CodeBlock,
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+      }),
       Underline,
       Link.configure({
         openOnClick: false,
@@ -65,10 +78,17 @@ export function EditorProvider({ children }: { children: ReactNode }) {
     `,
     editorProps: {
       attributes: {
-        class: "prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[300px]",
+        class:
+          "prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[300px]",
       },
     },
     immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+    },
+    onCreate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+    },
   });
 
   const updateMetadata = (key: keyof EmailMetadata, value: string) => {
@@ -77,7 +97,14 @@ export function EditorProvider({ children }: { children: ReactNode }) {
 
   return (
     <EditorContext.Provider
-      value={{ editor, metadata, updateMetadata, previewMode, setPreviewMode }}
+      value={{
+        editor,
+        metadata,
+        updateMetadata,
+        previewMode,
+        setPreviewMode,
+        htmlContent,
+      }}
     >
       {children}
     </EditorContext.Provider>
