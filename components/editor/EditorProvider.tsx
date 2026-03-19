@@ -8,8 +8,48 @@ import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
-import CodeBlock from "@tiptap/extension-code-block";
+import { Node, mergeAttributes } from "@tiptap/core";
 import { CustomImage } from "./CustomImage";
+
+export const CustomCodeBlock = Node.create({
+  name: "codeBlock",
+  group: "block",
+  content: "text*",
+  marks: "",
+  code: true,
+  defining: true,
+
+  parseHTML() {
+    return [{ tag: "pre", preserveWhitespace: "full" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "pre",
+      mergeAttributes(HTMLAttributes, {
+        class: "bg-gray-100 rounded-md p-4 text-[13px] font-mono text-gray-800 my-4 overflow-x-auto",
+      }),
+      ["code", {}, 0],
+    ];
+  },
+
+  addCommands() {
+    return {
+      setCustomCodeBlock:
+        () =>
+        ({ commands }: any) =>
+          commands.setNode("codeBlock"),
+      toggleCodeBlock:
+        () =>
+        ({ commands }: any) =>
+          commands.toggleNode("codeBlock", "paragraph"),
+    };
+  },
+
+  addKeyboardShortcuts() {
+    return { Backspace: () => false, Enter: () => false };
+  },
+});
 
 export type PreviewMode = "desktop" | "mobile";
 
@@ -51,7 +91,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
         gapcursor: false,
         dropcursor: false,
       }),
-      CodeBlock,
+      CustomCodeBlock,
       CustomImage,
       Underline,
       Link.configure({
@@ -75,8 +115,12 @@ export function EditorProvider({ children }: { children: ReactNode }) {
     `,
     editorProps: {
       attributes: {
-        class:
-          "prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[300px]",
+        class: "prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[300px]",
+        "data-gramm": "false",
+        "data-gramm_editor": "false",
+        "data-enable-grammarly": "false",
+        "data-lt-active": "false",
+        spellcheck: "false",
       },
     },
     immediatelyRender: false,
