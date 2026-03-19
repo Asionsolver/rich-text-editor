@@ -174,6 +174,30 @@ export default function Toolbar() {
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           onClose={closeDropdown}
         />
+        <DropdownItem 
+          label="Heading 3"
+          isActive={editor.isActive("heading", { level: 3 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClose={closeDropdown}
+        />
+        <DropdownItem 
+          label="Heading 4"
+          isActive={editor.isActive("heading", { level: 4 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          onClose={closeDropdown}
+        />
+        <DropdownItem 
+          label="Heading 5"
+          isActive={editor.isActive("heading", { level: 5 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
+          onClose={closeDropdown}
+        />
+        <DropdownItem 
+          label="Heading 6"
+          isActive={editor.isActive("heading", { level: 6 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+          onClose={closeDropdown}
+        />
       </Dropdown>
 
       <Dropdown 
