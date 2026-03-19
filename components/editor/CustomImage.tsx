@@ -35,86 +35,86 @@ const ImageNodeView = (props: any) => {
           alt={alt || "uploaded image"} 
           className="w-full h-auto block cursor-pointer object-cover"
         />
-
-        {selected && (
-          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg rounded-lg p-1.5 flex items-center gap-1 z-50">
-            <button
-              type="button"
-              onClick={() => updateAttributes({ align: "left" })}
-              className={`p-1.5 rounded transition-colors ${align === 'left' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
-              title="Align Left"
-            >
-              <AlignLeft className="w-4 h-4" strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAttributes({ align: "center" })}
-              className={`p-1.5 rounded transition-colors ${align === 'center' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
-              title="Align Center"
-            >
-              <AlignCenter className="w-4 h-4" strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAttributes({ align: "right" })}
-              className={`p-1.5 rounded transition-colors ${align === 'right' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
-              title="Align Right"
-            >
-              <AlignRight className="w-4 h-4" strokeWidth={2.5} />
-            </button>
-
-            <div className="w-px h-5 bg-gray-300 mx-1" />
-
-            <button
-              type="button"
-              onClick={() => updateAttributes({ width: "50%" })}
-              className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${width === '50%' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
-            >
-              50%
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAttributes({ width: "100%" })}
-              className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${width === '100%' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
-            >
-              100%
-            </button>
-
-            <div className="w-px h-5 bg-gray-300 mx-1" />
-
-            <label className="p-1.5 hover:bg-gray-100 rounded text-gray-600 cursor-pointer transition-colors" title="Replace Image">
-              <ImageUp className="w-4 h-4" strokeWidth={2.5} />
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => updateAttributes({ src: e.target?.result as string });
-                    reader.readAsDataURL(file);
-                    
-                    // Reset value so the event fires even if they pick the same file again
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </label>
-
-            <div className="w-px h-5 bg-gray-300 mx-1" />
-
-            <button
-              type="button"
-              onClick={deleteNode}
-              className="p-1.5 hover:bg-red-100 text-red-600 rounded transition-colors"
-              title="Delete Image"
-            >
-              <Trash2 className="w-4 h-4" strokeWidth={2.5} />
-            </button>
-          </div>
-        )}
       </div>
+
+      {selected && (
+        <div className="absolute bottom-full right-0 mb-2 w-max max-w-fit bg-white/95 backdrop-blur-sm border border-gray-200 shadow-xl rounded-lg p-1.5 flex flex-wrap justify-end items-center gap-1 z-50">
+          <button
+            type="button"
+            onClick={() => updateAttributes({ align: "left" })}
+            className={`p-1.5 rounded transition-colors ${align === 'left' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
+            title="Align Left"
+          >
+            <AlignLeft className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            onClick={() => updateAttributes({ align: "center" })}
+            className={`p-1.5 rounded transition-colors ${align === 'center' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
+            title="Align Center"
+          >
+            <AlignCenter className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            onClick={() => updateAttributes({ align: "right" })}
+            className={`p-1.5 rounded transition-colors ${align === 'right' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
+            title="Align Right"
+          >
+            <AlignRight className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+
+          <div className="w-px h-5 bg-gray-300 mx-1 hidden sm:block" />
+
+          <button
+            type="button"
+            onClick={() => updateAttributes({ width: "50%" })}
+            className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${width === '50%' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
+          >
+            50%
+          </button>
+          <button
+            type="button"
+            onClick={() => updateAttributes({ width: "100%" })}
+            className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${width === '100%' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'} `}
+          >
+            100%
+          </button>
+
+          <div className="w-px h-5 bg-gray-300 mx-1 hidden sm:block" />
+
+          <label className="p-1.5 hover:bg-gray-100 rounded text-gray-600 cursor-pointer transition-colors" title="Replace Image">
+            <ImageUp className="w-4 h-4" strokeWidth={2.5} />
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => updateAttributes({ src: e.target?.result as string });
+                  reader.readAsDataURL(file);
+                  
+                  // Reset value so the event fires even if they pick the same file again
+                  e.target.value = "";
+                }
+              }}
+            />
+          </label>
+
+          <div className="w-px h-5 bg-gray-300 mx-1" />
+
+          <button
+            type="button"
+            onClick={deleteNode}
+            className="p-1.5 hover:bg-red-100 text-red-600 rounded transition-colors"
+            title="Delete Image"
+          >
+            <Trash2 className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
     </NodeViewWrapper>
   );
 };
