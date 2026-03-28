@@ -364,7 +364,7 @@ export default function Toolbar() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        (editor.chain().focus() as any).setCustomImage({ src: result }).run();
+        editor.chain().focus().insertContent({ type: "customImage", attrs: { src: result } }).run();
       };
       reader.readAsDataURL(file);
       // Reset input value so the same file (or consecutive files) can be selected again

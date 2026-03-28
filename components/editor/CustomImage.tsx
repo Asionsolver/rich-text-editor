@@ -7,21 +7,15 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from "react";
-import { Node, mergeAttributes } from "@tiptap/core";
-import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
+import { Node, mergeAttributes, type CommandProps, type Command } from "@tiptap/core";
+import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { Trash2, AlignLeft, AlignCenter, AlignRight, ImageUp } from "lucide-react";
 
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    customImage: {
-      setCustomImage: (options: {
-        src: string;
-        alt?: string;
-        width?: string;
-        align?: string;
-      }) => ReturnType;
-    };
-  }
+interface ImageAttributes {
+  src: string;
+  alt?: string;
+  width?: string;
+  align?: string;
 }
 
 // ─── Preset widths ─────────────────────────────────────────────────────────────
@@ -37,7 +31,7 @@ const CORNER_HANDLES = [
 ] as const;
 
 // ─── ImageNodeView ─────────────────────────────────────────────────────────────
-const ImageNodeView = (props: any) => {
+const ImageNodeView = (props: NodeViewProps) => {
   const { node, updateAttributes, deleteNode, selected } = props;
   const { src, alt, width = "100%", align = "center" } = node.attrs;
 
@@ -403,7 +397,7 @@ export const CustomImage = Node.create({
       alt:   { default: null },
       width: { default: "100%" },
       align: { default: "center" },
-    };
+    } as const;
   },
 
   parseHTML() {
@@ -435,15 +429,5 @@ export const CustomImage = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(ImageNodeView);
-  },
-
-  addCommands() {
-    return {
-      setCustomImage:
-        (options: any) =>
-        ({ commands }: any) => {
-          return commands.insertContent({ type: this.name, attrs: options });
-        },
-    };
   },
 });

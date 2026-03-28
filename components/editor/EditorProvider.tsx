@@ -11,7 +11,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node, mergeAttributes, type CommandProps } from "@tiptap/core";
 import { CustomImage } from "./CustomImage";
 
 export const CustomCodeBlock = Node.create({
@@ -40,11 +40,11 @@ export const CustomCodeBlock = Node.create({
     return {
       setCustomCodeBlock:
         () =>
-        ({ commands }: any) =>
+        ({ commands }: CommandProps) =>
           commands.setNode("codeBlock"),
       toggleCodeBlock:
         () =>
-        ({ commands }: any) =>
+        ({ commands }: CommandProps) =>
           commands.toggleNode("codeBlock", "paragraph"),
     };
   },
