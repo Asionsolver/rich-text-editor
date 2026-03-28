@@ -32,6 +32,7 @@ import {
   Highlighter,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { HexColorPicker } from "react-colorful";
 
 const ToolbarButton = ({
   isActive,
@@ -88,7 +89,12 @@ const Dropdown = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        ref.current && 
+        !ref.current.contains(target) &&
+        document.contains(target)
+      ) {
         onClose();
       }
     };
@@ -157,91 +163,75 @@ const DropdownItem = ({
 );
 
 const COLOR_PALETTE = [
-  [
-    "#000000",
-    "#434343",
-    "#666666",
-    "#999999",
-    "#b7b7b7",
-    "#cccccc",
-    "#d9d9d9",
-    "#efefef",
-    "#f3f3f3",
-    "#ffffff",
-  ],
-  [
-    "#980000",
-    "#ff0000",
-    "#ff9900",
-    "#ffff00",
-    "#00ff00",
-    "#00ffff",
-    "#4a86e8",
-    "#0000ff",
-    "#9900ff",
-    "#ff00ff",
-  ],
-  [
-    "#e6b8af",
-    "#f4cccc",
-    "#fce5cd",
-    "#fff2cc",
-    "#d9ead3",
-    "#d0e0e3",
-    "#c9daf8",
-    "#cfe2f3",
-    "#d9d2e9",
-    "#ead1dc",
-  ],
-  [
-    "#dd7e6b",
-    "#ea9999",
-    "#f9cb9c",
-    "#ffe599",
-    "#b6d7a8",
-    "#a2c4c9",
-    "#a4c2f4",
-    "#9fc5e8",
-    "#b4a7d6",
-    "#d5a6bd",
-  ],
-  [
-    "#cc4125",
-    "#e06666",
-    "#f6b26b",
-    "#ffd966",
-    "#93c47d",
-    "#76a5af",
-    "#6d9eeb",
-    "#6fa8dc",
-    "#8e7cc3",
-    "#c27ba0",
-  ],
-  [
-    "#a61c00",
-    "#cc0000",
-    "#e69138",
-    "#f1c232",
-    "#6aa84f",
-    "#45818e",
-    "#3c78d8",
-    "#3d85c6",
-    "#674ea7",
-    "#a64d79",
-  ],
-  [
-    "#5b0f00",
-    "#660000",
-    "#783f04",
-    "#7f6000",
-    "#274e13",
-    "#0c343d",
-    "#1c4587",
-    "#073763",
-    "#20124d",
-    "#4c1130",
-  ],
+  ["#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#cccccc", "#d9d9d9", "#efefef", "#f3f3f3", "#ffffff"],
+  ["#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00", "#00ffff", "#4a86e8", "#0000ff", "#9900ff", "#ff00ff"],
+  ["#e6b8af", "#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#c9daf8", "#cfe2f3", "#d9d2e9", "#ead1dc"],
+  ["#dd7e6b", "#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#a4c2f4", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
+  ["#cc4125", "#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6d9eeb", "#6fa8dc", "#8e7cc3", "#c27ba0"],
+  ["#a61c00", "#cc0000", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3c78d8", "#3d85c6", "#674ea7", "#a64d79"],
+  ["#5b0f00", "#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#1c4587", "#073763", "#20124d", "#4c1130"]
 ];
+
+const HexInput = ({ color, onChange }: { color: string; onChange: (c: string) => void }) => {
+  const [value, setValue] = useState(color ? color.replace("#", "").toUpperCase() : "");
+
+  useEffect(() => {
+    if (color) {
+      setValue(color.replace("#", "").toUpperCase());
+    }
+  }, [color]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/[^0-9A-Fa-f]/g, "").slice(0, 6).toUpperCase();
+    setValue(val);
+    if (val.length === 6) {
+      onChange(`#${val}`);
+    }
+  };
+
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={handleChange}
+      className="w-full px-2 py-1.5 text-[13px] text-gray-700 border border-gray-200 rounded outline-none focus:border-gray-400 font-mono"
+      placeholder="000000"
+    />
+  );
+};
+
+const CustomColorPickerView = ({
+  color,
+  onChange,
+  onAdd,
+}: {
+  color: string;
+  onChange: (color: string) => void;
+  onAdd: () => void;
+}) => {
+  return (
+    <div className="flex flex-col p-3 gap-3 bg-white w-[236px]">
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] text-gray-700 font-medium">More Colors...</span>
+      </div>
+      <div className="w-full h-px bg-gray-100" />
+      <HexColorPicker color={color} onChange={onChange} style={{ width: "100%", height: "160px" }} />
+      <div className="flex flex-col gap-2">
+        <HexInput color={color} onChange={onChange} />
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onAdd();
+          }}
+          className="w-full py-1.5 flex items-center justify-center bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ColorPickerOptions = ({
   color,
@@ -256,6 +246,19 @@ const ColorPickerOptions = ({
   clearLabel?: string;
   recentColors: string[];
 }) => {
+  const [showCustom, setShowCustom] = useState(false);
+  const [customColor, setCustomColor] = useState(color || "#000000");
+
+  if (showCustom) {
+    return (
+      <CustomColorPickerView
+        color={customColor}
+        onChange={setCustomColor}
+        onAdd={() => onChange(customColor)}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col p-2 gap-2 bg-white w-[236px]">
       <button
@@ -281,9 +284,7 @@ const ColorPickerOptions = ({
                   onChange(c);
                 }}
                 className={`w-[18px] h-[18px] rounded-sm shrink-0 border hover:scale-110 transition-transform ${
-                  color === c
-                    ? "ring-1 ring-gray-400 ring-offset-1 border-transparent"
-                    : "border-gray-200"
+                  color === c ? "ring-1 ring-gray-400 ring-offset-1 border-transparent" : "border-gray-200"
                 }`}
                 style={{ backgroundColor: c }}
                 title={c}
@@ -305,9 +306,7 @@ const ColorPickerOptions = ({
                   onChange(c);
                 }}
                 className={`w-[18px] h-[18px] rounded-sm shrink-0 border hover:scale-110 transition-transform ${
-                  color === c
-                    ? "ring-1 ring-gray-400 ring-offset-1 border-transparent"
-                    : "border-gray-200"
+                  color === c ? "ring-1 ring-gray-400 ring-offset-1 border-transparent" : "border-gray-200"
                 }`}
                 style={{ backgroundColor: c }}
                 title={c}
@@ -317,15 +316,16 @@ const ColorPickerOptions = ({
         </div>
       )}
       <div className="mt-1 flex border-t border-gray-100 pt-1">
-        <label className="flex items-center px-1 py-1 text-[13px] text-gray-700 hover:bg-gray-100 w-full rounded cursor-pointer transition-colors relative">
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setShowCustom(true);
+          }}
+          className="flex items-center px-1 py-1 text-[13px] text-gray-700 hover:bg-gray-100 w-full rounded cursor-pointer transition-colors relative"
+        >
           <span>More Colors...</span>
-          <input
-            type="color"
-            value={color || "#000000"}
-            onChange={(e) => onChange(e.target.value)}
-            className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
-          />
-        </label>
+        </button>
       </div>
     </div>
   );
@@ -345,14 +345,14 @@ export default function Toolbar() {
 
   const closeDropdown = () => setOpenDropdown(null);
 
-  const handleColorChange = (color: string, type: "text" | "highlight") => {
-    if (type === "text") {
+  const handleColorChange = (color: string, type: 'text' | 'highlight') => {
+    if (type === 'text') {
       editor.chain().focus().setColor(color).run();
     } else {
       editor.chain().focus().setHighlight({ color }).run();
     }
-    setRecentColors((prev) => {
-      const next = [color, ...prev.filter((c) => c !== color)].slice(0, 10);
+    setRecentColors(prev => {
+      const next = [color, ...prev.filter(c => c !== color)].slice(0, 10);
       return next;
     });
     closeDropdown();
@@ -507,23 +507,14 @@ export default function Toolbar() {
         tooltip="Text Color"
         trigger={
           <div className="flex flex-col items-center justify-center gap-[1px] w-[18px]">
-            <Baseline
-              className="w-[16px] h-[16px] text-[#4B5563]"
-              strokeWidth={2.5}
-            />
-            <div
-              className="w-full h-[3px] rounded-sm"
-              style={{
-                backgroundColor:
-                  editor.getAttributes("textStyle").color || "#000000",
-              }}
-            />
+            <Baseline className="w-[16px] h-[16px] text-[#4B5563]" strokeWidth={2.5} />
+            <div className="w-full h-[3px] rounded-sm" style={{ backgroundColor: editor.getAttributes('textStyle').color || '#000000' }} />
           </div>
         }
       >
-        <ColorPickerOptions
-          color={editor.getAttributes("textStyle").color}
-          onChange={(c) => handleColorChange(c, "text")}
+        <ColorPickerOptions 
+          color={editor.getAttributes('textStyle').color}
+          onChange={(c) => handleColorChange(c, 'text')}
           onClear={() => {
             editor.chain().focus().unsetColor().run();
             closeDropdown();
@@ -540,23 +531,14 @@ export default function Toolbar() {
         tooltip="Highlight Color"
         trigger={
           <div className="flex flex-col items-center justify-center gap-[1px] w-[18px]">
-            <Highlighter
-              className="w-[16px] h-[16px] text-[#4B5563]"
-              strokeWidth={2.5}
-            />
-            <div
-              className="w-full h-[3px] rounded-sm"
-              style={{
-                backgroundColor:
-                  editor.getAttributes("highlight").color || "transparent",
-              }}
-            />
+            <Highlighter className="w-[16px] h-[16px] text-[#4B5563]" strokeWidth={2.5} />
+            <div className="w-full h-[3px] rounded-sm" style={{ backgroundColor: editor.getAttributes('highlight').color || 'transparent' }} />
           </div>
         }
       >
-        <ColorPickerOptions
-          color={editor.getAttributes("highlight").color}
-          onChange={(c) => handleColorChange(c, "highlight")}
+        <ColorPickerOptions 
+          color={editor.getAttributes('highlight').color}
+          onChange={(c) => handleColorChange(c, 'highlight')}
           onClear={() => {
             editor.chain().focus().unsetHighlight().run();
             closeDropdown();
