@@ -18,46 +18,35 @@ declare module "@tiptap/core" {
   }
 }
 
-// ─── Preset widths ────────────────────────────────────────────────────────────
+// ─── Preset widths ─────────────────────────────────────────────────────────────
 const PRESETS = ["25%", "50%", "75%", "100%"] as const;
 type Preset = (typeof PRESETS)[number];
 
-// ─── 8-point resize handle definitions ───────────────────────────────────────
-// `dir`: horizontal direction multiplier for deltaX
-//   +1  = right-side handle  (drag right → wider)
-//   -1  = left-side handle   (drag right → narrower)
-//   +1  = top/bottom handles (treat same as right, horizontal drag)
-const HANDLES = [
-  { id: "nw", cursor: "nw-resize", style: { top: "-5px", left: "-5px" },                          dir: -1 },
-  { id: "n",  cursor: "n-resize",  style: { top: "-5px", left: "50%", transform: "translateX(-50%)" }, dir: 1 },
-  { id: "ne", cursor: "ne-resize", style: { top: "-5px", right: "-5px" },                          dir: 1 },
-  { id: "e",  cursor: "e-resize",  style: { top: "50%",  right: "-5px", transform: "translateY(-50%)" }, dir: 1 },
-  { id: "se", cursor: "se-resize", style: { bottom: "-5px", right: "-5px" },                       dir: 1 },
-  { id: "s",  cursor: "s-resize",  style: { bottom: "-5px", left: "50%", transform: "translateX(-50%)" }, dir: 1 },
-  { id: "sw", cursor: "sw-resize", style: { bottom: "-5px", left: "-5px" },                        dir: -1 },
-  { id: "w",  cursor: "w-resize",  style: { top: "50%",  left: "-5px", transform: "translateY(-50%)" }, dir: -1 },
+// ─── Corner-only resize handles ────────────────────────────────────────────────
+// dir: +1 = right side (drag right → wider), -1 = left side (drag right → narrower)
+const CORNER_HANDLES = [
+  { id: "nw", cursor: "nw-resize", style: { top:    "-5px", left:  "-5px" }, dir: -1 },
+  { id: "ne", cursor: "ne-resize", style: { top:    "-5px", right: "-5px" }, dir:  1 },
+  { id: "sw", cursor: "sw-resize", style: { bottom: "-5px", left:  "-5px" }, dir: -1 },
+  { id: "se", cursor: "se-resize", style: { bottom: "-5px", right: "-5px" }, dir:  1 },
 ] as const;
 
-// ─── ImageNodeView ────────────────────────────────────────────────────────────
+// ─── ImageNodeView ─────────────────────────────────────────────────────────────
 const ImageNodeView = (props: any) => {
   const { node, updateAttributes, deleteNode, selected } = props;
   const { src, alt, width = "100%", align = "center" } = node.attrs;
 
-  // ref to the image container (width-controlled div, NOT NodeViewWrapper)
+  // ref to the width-controlled image container div
   const imgContainerRef = useRef<HTMLDivElement>(null);
 
   const [isResizing, setIsResizing] = useState(false);
-  const [liveWidth, setLiveWidth] = useState<string | null>(null);
 
-  // Only the committed attr width (or live if resizing)
-  const displayWidth = liveWidth ?? width ?? "100%";
-
-  // Active preset: exact string match only
+  // Active preset — only when width string exactly matches
   const activePreset: Preset | null = (PRESETS as readonly string[]).includes(width)
     ? (width as Preset)
     : null;
 
-  // Alignment class for the image container (margin-based)
+  // Margin-based alignment for the image container
   const alignStyle: React.CSSProperties =
     align === "left"
       ? { marginLeft: 0, marginRight: "auto" }
@@ -65,49 +54,48 @@ const ImageNodeView = (props: any) => {
       ? { marginLeft: "auto", marginRight: 0 }
       : { marginLeft: "auto", marginRight: "auto" };
 
-  // ── Generic resize handler for any of the 8 handles ──────────────────────
+  // ── Corner resize handler ────────────────────────────────────────────────────
   const makeHandleMouseDown = useCallback(
-    (dir: 1 | -1) => (e: React.MouseEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (dir: 1 | -1) =>
+      (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-      const el = imgContainerRef.current;
-      if (!el) return;
+        const el = imgContainerRef.current;
+        if (!el) return;
 
-      const parentWidth = el.parentElement?.clientWidth ?? 800;
-      const startX = e.clientX;
-      const startPx = el.getBoundingClientRect().width;
+        const parentWidth = el.parentElement?.clientWidth ?? 800;
+        const startX  = e.clientX;
+        const startPx = el.getBoundingClientRect().width;
 
-      setIsResizing(true);
+        setIsResizing(true);
 
-      const onMove = (mv: MouseEvent) => {
-        const delta = (mv.clientX - startX) * dir;
-        const newPx = Math.max(60, startPx + delta);
-        const newPct = Math.min(100, Math.round((newPx / parentWidth) * 100));
-        // Imperatively update DOM for smooth 60fps feel
-        el.style.width = `${newPct}%`;
-        setLiveWidth(`${newPct}%`);
-      };
+        const onMove = (mv: MouseEvent) => {
+          const delta  = (mv.clientX - startX) * dir;
+          const newPx  = Math.max(60, startPx + delta);
+          const newPct = Math.min(100, Math.round((newPx / parentWidth) * 100));
+          // Imperative DOM update for smooth 60-fps feel, no React re-render
+          el.style.width = `${newPct}%`;
+        };
 
-      const onUp = (up: MouseEvent) => {
-        const parentWidth2 = el.parentElement?.clientWidth ?? 800;
-        const delta = (up.clientX - startX) * dir;
-        const newPx = Math.max(60, startPx + delta);
-        const newPct = Math.min(100, Math.round((newPx / parentWidth2) * 100));
-        updateAttributes({ width: `${newPct}%` });
-        setIsResizing(false);
-        setLiveWidth(null);
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-      };
+        const onUp = (up: MouseEvent) => {
+          const pw     = el.parentElement?.clientWidth ?? 800;
+          const delta  = (up.clientX - startX) * dir;
+          const newPx  = Math.max(60, startPx + delta);
+          const newPct = Math.min(100, Math.round((newPx / pw) * 100));
+          updateAttributes({ width: `${newPct}%` });
+          setIsResizing(false);
+          window.removeEventListener("mousemove", onMove);
+          window.removeEventListener("mouseup",   onUp);
+        };
 
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
-    },
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup",   onUp);
+      },
     [updateAttributes]
   );
 
-  // Keep image container in sync when attr changes externally (e.g. preset click)
+  // Sync container width when the Tiptap attr changes (e.g. preset click, undo)
   useEffect(() => {
     if (imgContainerRef.current && !isResizing) {
       imgContainerRef.current.style.width = width ?? "100%";
@@ -116,241 +104,255 @@ const ImageNodeView = (props: any) => {
 
   return (
     /**
-     * NodeViewWrapper renders as a FULL-WIDTH block div.
-     * The toolbar is positioned relative to THIS — so it's always
-     * centered in the editor regardless of how small the image is.
+     * NodeViewWrapper = full-width block.
+     * We give it extra bottom margin when selected so the toolbar
+     * (absolutely positioned below the image) doesn't overlap
+     * the next paragraph.
      */
     <NodeViewWrapper
       style={{
         display: "block",
         position: "relative",
-        // Enough bottom padding so the toolbar (below image) doesn't overlap text
-        paddingBottom: selected ? "52px" : "0",
-        marginTop: "24px",
-        marginBottom: "24px",
-        transition: "padding-bottom 0.15s ease",
+        marginTop:    "24px",
+        marginBottom: selected ? "60px" : "24px",
+        transition:   "margin-bottom 0.15s ease",
       }}
     >
-      {/* ── Image + resize handles ─────────────────────────────────────── */}
+      {/**
+       * imgContainer: width-controlled, alignment via auto-margins.
+       * overflow:visible so the corner handles and toolbar can poke out.
+       * The toolbar is a child of THIS div so it always tracks the image
+       * position across left / center / right alignment.
+       */}
       <div
         ref={imgContainerRef}
         style={{
           ...alignStyle,
-          width: displayWidth,
-          maxWidth: "100%",
-          position: "relative",
-          display: "block",
+          width:       width ?? "100%",
+          maxWidth:    "100%",
+          display:     "block",
+          position:    "relative",
           borderRadius: "8px",
-          overflow: "visible", // let handles poke outside
-          boxSizing: "border-box",
-          outline: selected
-            ? isResizing
-              ? "2px solid #60a5fa"
-              : "2px solid #3b82f6"
+          overflow:    "visible",
+          outline:     selected
+            ? `2px solid ${isResizing ? "#60a5fa" : "#3b82f6"}`
             : "1px solid #e5e7eb",
           outlineOffset: "2px",
-          boxShadow: selected ? "none" : "0 1px 3px rgba(0,0,0,0.1)",
+          boxShadow:   selected ? "none" : "0 1px 3px rgba(0,0,0,0.1)",
+          boxSizing:   "border-box",
         }}
       >
-        {/* Image itself */}
+        {/* ── Image ────────────────────────────────────────────────────── */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
           alt={alt || "uploaded image"}
           draggable={false}
           style={{
-            width: "100%",
-            height: "auto",
-            display: "block",
+            width:        "100%",
+            height:       "auto",
+            display:      "block",
             borderRadius: "8px",
-            objectFit: "cover",
+            objectFit:    "cover",
           }}
         />
 
-        {/* 8-point resize handles (shown only when selected) */}
+        {/* ── Corner resize handles ─────────────────────────────────────── */}
         {selected &&
-          HANDLES.map(({ id, cursor, style, dir }) => (
+          CORNER_HANDLES.map(({ id, cursor, style, dir }) => (
             <div
               key={id}
               onMouseDown={makeHandleMouseDown(dir as 1 | -1)}
               title="Drag to resize"
               style={{
-                position: "absolute",
-                width: "10px",
-                height: "10px",
-                background: "white",
-                border: "2px solid #3b82f6",
+                position:   "absolute",
+                width:      "10px",
+                height:     "10px",
+                background: "#ffffff",
+                border:     "2px solid #3b82f6",
                 borderRadius: "2px",
                 cursor,
-                zIndex: 60,
-                boxShadow: "0 1px 4px rgba(0,0,0,0.25)",
+                zIndex:     60,
+                boxShadow:  "0 1px 4px rgba(0,0,0,0.25)",
                 ...style,
               }}
             />
           ))}
-      </div>
 
-      {/* ── Floating toolbar ───────────────────────────────────────────────
-           Positioned absolute RELATIVE TO NodeViewWrapper (full-width),
-           centered horizontally — never clipped by image width.        ── */}
-      {selected && (
-        <div
-          onMouseDown={(e) => e.stopPropagation()}
-          style={{
-            position: "absolute",
-            bottom: "4px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 70,
-            // white-space nowrap + fit-content keeps it on one single line always
-            whiteSpace: "nowrap",
-            width: "max-content",
-          }}
-        >
+        {/**
+         * ── Floating toolbar ────────────────────────────────────────────
+         *
+         * Positioned as a child of imgContainer so it always follows
+         * the image regardless of alignment (left / center / right).
+         *
+         * top: calc(100% + 10px)  → just below the image
+         * left: 50% + translateX(-50%) → centered on the image
+         *
+         * white-space:nowrap + width:max-content keep it on one line
+         * even when the image is very narrow.
+         */}
+        {selected && (
           <div
+            onMouseDown={(e) => e.stopPropagation()}
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "2px",
-              background: "rgba(255,255,255,0.97)",
-              backdropFilter: "blur(8px)",
-              border: "1px solid #e5e7eb",
-              borderRadius: "10px",
-              padding: "6px 8px",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+              position:  "absolute",
+              top:       "calc(100% + 10px)",
+              left:      "50%",
+              transform: "translateX(-50%)",
+              zIndex:    70,
+              whiteSpace: "nowrap",
+              width:     "max-content",
             }}
           >
-            {/* Alignment */}
-            {(
-              [
-                { value: "left",   Icon: AlignLeft,   label: "Align Left" },
-                { value: "center", Icon: AlignCenter, label: "Align Center" },
-                { value: "right",  Icon: AlignRight,  label: "Align Right" },
-              ] as const
-            ).map(({ value, Icon, label }) => (
-              <button
-                key={value}
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  updateAttributes({ align: value });
-                }}
-                title={label}
+            <div
+              style={{
+                display:        "inline-flex",
+                alignItems:     "center",
+                gap:            "2px",
+                background:     "rgba(255,255,255,0.97)",
+                backdropFilter: "blur(8px)",
+                border:         "1px solid #e5e7eb",
+                borderRadius:   "10px",
+                padding:        "6px 8px",
+                boxShadow:      "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+              }}
+            >
+              {/* Alignment buttons */}
+              {(
+                [
+                  { value: "left",   Icon: AlignLeft,   label: "Align Left"   },
+                  { value: "center", Icon: AlignCenter, label: "Align Center" },
+                  { value: "right",  Icon: AlignRight,  label: "Align Right"  },
+                ] as const
+              ).map(({ value, Icon, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    updateAttributes({ align: value });
+                  }}
+                  title={label}
+                  style={{
+                    padding:         "5px",
+                    borderRadius:    "6px",
+                    border:          "none",
+                    cursor:          "pointer",
+                    background:      align === value ? "#f3f4f6" : "transparent",
+                    color:           align === value ? "#111827" : "#6b7280",
+                    display:         "flex",
+                    alignItems:      "center",
+                    justifyContent:  "center",
+                    flexShrink:      0,
+                  }}
+                >
+                  <Icon style={{ width: 14, height: 14 }} strokeWidth={2.5} />
+                </button>
+              ))}
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
+
+              {/* Preset size buttons */}
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    updateAttributes({ width: preset });
+                  }}
+                  title={`Resize to ${preset}`}
+                  style={{
+                    padding:      "3px 7px",
+                    borderRadius: "6px",
+                    border:       activePreset === preset ? "1px solid #bfdbfe" : "none",
+                    cursor:       "pointer",
+                    background:   activePreset === preset ? "#eff6ff" : "transparent",
+                    color:        activePreset === preset ? "#1d4ed8" : "#6b7280",
+                    fontSize:     "11px",
+                    fontWeight:   600,
+                    letterSpacing: "0.01em",
+                    lineHeight:   1,
+                    flexShrink:   0,
+                  }}
+                >
+                  {preset}
+                </button>
+              ))}
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
+
+              {/* Replace image */}
+              <label
+                title="Replace Image"
                 style={{
-                  padding: "5px",
-                  borderRadius: "6px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: align === value ? "#f3f4f6" : "transparent",
-                  color: align === value ? "#111827" : "#6b7280",
-                  display: "flex",
-                  alignItems: "center",
+                  padding:        "5px",
+                  borderRadius:   "6px",
+                  cursor:         "pointer",
+                  color:          "#6b7280",
+                  display:        "flex",
+                  alignItems:     "center",
                   justifyContent: "center",
+                  flexShrink:     0,
+                  background:     "transparent",
+                  transition:     "background 0.15s",
                 }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#f3f4f6")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
               >
-                <Icon style={{ width: 14, height: 14 }} strokeWidth={2.5} />
-              </button>
-            ))}
+                <ImageUp style={{ width: 14, height: 14 }} strokeWidth={2.5} />
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) =>
+                        updateAttributes({ src: ev.target?.result as string });
+                      reader.readAsDataURL(file);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+              </label>
 
-            {/* Divider */}
-            <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
+              {/* Divider */}
+              <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
 
-            {/* Preset size buttons */}
-            {PRESETS.map((preset) => (
+              {/* Delete */}
               <button
-                key={preset}
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  updateAttributes({ width: preset });
+                  deleteNode();
                 }}
-                title={`Resize to ${preset}`}
+                title="Delete Image"
                 style={{
-                  padding: "3px 7px",
-                  borderRadius: "6px",
-                  border: activePreset === preset ? "1px solid #bfdbfe" : "none",
-                  cursor: "pointer",
-                  background: activePreset === preset ? "#eff6ff" : "transparent",
-                  color: activePreset === preset ? "#1d4ed8" : "#6b7280",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  letterSpacing: "0.01em",
-                  lineHeight: 1,
-                  flexShrink: 0,
+                  padding:        "5px",
+                  borderRadius:   "6px",
+                  border:         "none",
+                  cursor:         "pointer",
+                  background:     "transparent",
+                  color:          "#ef4444",
+                  display:        "flex",
+                  alignItems:     "center",
+                  justifyContent: "center",
+                  flexShrink:     0,
+                  transition:     "background 0.15s",
                 }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#fef2f2")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
               >
-                {preset}
+                <Trash2 style={{ width: 14, height: 14 }} strokeWidth={2.5} />
               </button>
-            ))}
-
-            {/* Divider */}
-            <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
-
-            {/* Replace image */}
-            <label
-              title="Replace Image"
-              style={{
-                padding: "5px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                color: "#6b7280",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#f3f4f6")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
-            >
-              <ImageUp style={{ width: 14, height: 14 }} strokeWidth={2.5} />
-              <input
-                type="file"
-                style={{ display: "none" }}
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) =>
-                      updateAttributes({ src: ev.target?.result as string });
-                    reader.readAsDataURL(file);
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </label>
-
-            {/* Divider */}
-            <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px", flexShrink: 0 }} />
-
-            {/* Delete */}
-            <button
-              type="button"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                deleteNode();
-              }}
-              title="Delete Image"
-              style={{
-                padding: "5px",
-                borderRadius: "6px",
-                border: "none",
-                cursor: "pointer",
-                background: "transparent",
-                color: "#ef4444",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#fef2f2")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
-            >
-              <Trash2 style={{ width: 14, height: 14 }} strokeWidth={2.5} />
-            </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </NodeViewWrapper>
   );
 };
@@ -376,7 +378,7 @@ export const CustomImage = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const alignStyle =
+    const marginStyle =
       HTMLAttributes.align === "left"
         ? "margin-left:0;margin-right:auto"
         : HTMLAttributes.align === "right"
@@ -386,12 +388,13 @@ export const CustomImage = Node.create({
     return [
       "div",
       {
-        style: `display:block;width:${HTMLAttributes.width || "100%"};max-width:100%;${alignStyle};margin-top:24px;margin-bottom:24px`,
+        style: `display:block;width:${HTMLAttributes.width || "100%"};max-width:100%;${marginStyle};margin-top:24px;margin-bottom:24px`,
       },
       [
         "img",
         mergeAttributes(HTMLAttributes, {
-          style: "width:100%;height:auto;display:block;border-radius:8px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.1)",
+          style:
+            "width:100%;height:auto;display:block;border-radius:8px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.1)",
         }),
       ],
     ];
