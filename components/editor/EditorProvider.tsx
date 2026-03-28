@@ -8,6 +8,9 @@ import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
 import { Node, mergeAttributes } from "@tiptap/core";
 import { CustomImage } from "./CustomImage";
 
@@ -105,6 +108,9 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
     ],
     content: `
       <p>Hi,</p>

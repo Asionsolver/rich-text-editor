@@ -20,6 +20,12 @@ importers:
       '@tiptap/extension-code-block':
         specifier: ^3.20.4
         version: 3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))(@tiptap/pm@3.20.4)
+      '@tiptap/extension-color':
+        specifier: ^3.21.0
+        version: 3.21.0(@tiptap/extension-text-style@3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4)))
+      '@tiptap/extension-highlight':
+        specifier: ^3.21.0
+        version: 3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
       '@tiptap/extension-image':
         specifier: ^3.20.4
         version: 3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
@@ -35,6 +41,9 @@ importers:
       '@tiptap/extension-text-align':
         specifier: ^3.20.4
         version: 3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
+      '@tiptap/extension-text-style':
+        specifier: ^3.21.0
+        version: 3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
       '@tiptap/extension-underline':
         specifier: ^3.20.4
         version: 3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
@@ -65,6 +74,9 @@ importers:
       react:
         specifier: 19.2.3
         version: 19.2.3
+      react-colorful:
+        specifier: ^5.6.1
+        version: 5.6.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
@@ -1496,6 +1508,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.20.4
 
+  '@tiptap/extension-color@3.21.0':
+    resolution: {integrity: sha512-LbzMcUPz148A+4g42GQ3FqkwI4+p8w+9W0s5HAo6aVMjsOaMSL12CqNhG4Kj/6zOq32WkVSa3FxpDNkuMn0jzA==}
+    peerDependencies:
+      '@tiptap/extension-text-style': ^3.21.0
+
   '@tiptap/extension-document@3.20.4':
     resolution: {integrity: sha512-zF1CIFVLt8MfSpWWnPwtGyxPOsT0xYM2qJKcXf2yZcTG37wDKmUi6heG53vGigIavbQlLaAFvs+1mNdOu2x/0A==}
     peerDependencies:
@@ -1527,6 +1544,11 @@ packages:
     resolution: {integrity: sha512-xsnkmTGggJc5P2iCwS1lv8KFG31xC/GNPJKoi/3UH67j/lKDhA3AdtshsLeyv2FKtTtYDb8oV0IqzHB1MM6a7w==}
     peerDependencies:
       '@tiptap/core': ^3.20.4
+
+  '@tiptap/extension-highlight@3.21.0':
+    resolution: {integrity: sha512-3f/bVgfm2dJZxalh07TThDxcTaeXJ+dpYyRY9trnFeHbhyYQXSy6yzkNhNcYB4Ua5jxpKQv4b9Q448QVh+KNzA==}
+    peerDependencies:
+      '@tiptap/core': ^3.21.0
 
   '@tiptap/extension-horizontal-rule@3.20.4':
     resolution: {integrity: sha512-y6joCi49haAA0bo3EGUY+dWUMHH1GPUc84hxrBY/0pMs+Bn+kQ1+DQJErZDTWGJrlHPWU/yekBZT72SNdp0DNA==}
@@ -1597,6 +1619,11 @@ packages:
     resolution: {integrity: sha512-6ZuRyClIyCimXu+S5LQ54DueEsYg5VOVOmubOVbG+WAjM9svn9Z8gv2sNDah2yEqXrX06B02zYcSyMiD7CHbfA==}
     peerDependencies:
       '@tiptap/core': ^3.20.4
+
+  '@tiptap/extension-text-style@3.21.0':
+    resolution: {integrity: sha512-MI/3X75D45Wa/+0Fp8nYfNJq5makkjtG7B2/lIzNUe0kEKJ56RVQoV1GQSXxAiFNyAYRfKFq8dJslhesW3EkWA==}
+    peerDependencies:
+      '@tiptap/core': ^3.21.0
 
   '@tiptap/extension-text@3.20.4':
     resolution: {integrity: sha512-jchJcBZixDEO2J66Zx5dchsI2mA6IYsROqF8P1poxL4ienH7RVQRCTsBNnSfIeOtREKKWeOU/tEs5fcpvvGwIQ==}
@@ -3485,6 +3512,12 @@ packages:
   raw-body@3.0.2:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
+
+  react-colorful@5.6.1:
+    resolution: {integrity: sha512-1exovf0uGTGyq5mXQT0zgQ80uvj2PCwvF8zY1RN9/vbJVSjSo3fsB/4L3ObbF7u70NduSiK4xu4Y6q1MHoUGEw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   react-dom@19.2.3:
     resolution: {integrity: sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg==}
@@ -5473,6 +5506,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
 
+  '@tiptap/extension-color@3.21.0(@tiptap/extension-text-style@3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4)))':
+    dependencies:
+      '@tiptap/extension-text-style': 3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))
+
   '@tiptap/extension-document@3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))':
     dependencies:
       '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
@@ -5497,6 +5534,10 @@ snapshots:
       '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
 
   '@tiptap/extension-heading@3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))':
+    dependencies:
+      '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
+
+  '@tiptap/extension-highlight@3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))':
     dependencies:
       '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
 
@@ -5555,6 +5596,10 @@ snapshots:
       '@tiptap/pm': 3.20.4
 
   '@tiptap/extension-text-align@3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))':
+    dependencies:
+      '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
+
+  '@tiptap/extension-text-style@3.21.0(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))':
     dependencies:
       '@tiptap/core': 3.20.4(@tiptap/pm@3.20.4)
 
@@ -7680,6 +7725,11 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       unpipe: 1.0.0
+
+  react-colorful@5.6.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   react-dom@19.2.3(react@19.2.3):
     dependencies:
