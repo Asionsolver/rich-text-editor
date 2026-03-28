@@ -411,19 +411,21 @@ export const CustomImage = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const { align, width, ...restAttributes } = HTMLAttributes;
+    
     const marginStyle =
-      HTMLAttributes.align === "left"  ? "margin-left:0;margin-right:auto" :
-      HTMLAttributes.align === "right" ? "margin-left:auto;margin-right:0"  :
-                                         "margin-left:auto;margin-right:auto";
+      align === "left"  ? "margin-left:0;margin-right:auto" :
+      align === "right" ? "margin-left:auto;margin-right:0"  :
+                          "margin-left:auto;margin-right:auto";
 
     return [
       "div",
       {
-        style: `display:block;width:${HTMLAttributes.width||"100%"};max-width:100%;${marginStyle};margin-top:24px;margin-bottom:24px`,
+        style: `display:block;width:${width||"100%"};max-width:100%;${marginStyle};margin-top:24px;margin-bottom:24px;clear:both`,
       },
       [
         "img",
-        mergeAttributes(HTMLAttributes, {
+        mergeAttributes(restAttributes, {
           style:
             "width:100%;height:auto;display:block;border-radius:8px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.1)",
         }),
