@@ -12,6 +12,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Node, mergeAttributes, type CommandProps } from "@tiptap/core";
+import BubbleMenu from "@tiptap/extension-bubble-menu";
 import { CustomImage } from "./CustomImage";
 
 export const CustomCodeBlock = Node.create({
@@ -111,6 +112,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
+      BubbleMenu,
     ],
     content: `
       <p>Hi,</p>

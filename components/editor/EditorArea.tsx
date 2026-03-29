@@ -4,8 +4,15 @@ import React, { memo } from "react";
 import { EditorContent, Editor } from "@tiptap/react";
 import { useEmailEditor } from "./EditorProvider";
 
+import { BubbleToolbar } from "./BubbleToolbar";
+
 const MemoizedEditor = memo(({ editor }: { editor: Editor | null }) => {
-  return <EditorContent editor={editor} className="h-full p-6 text-[15px] leading-relaxed text-gray-800" />;
+  return (
+    <>
+      <BubbleToolbar editor={editor} />
+      <EditorContent editor={editor} className="h-full p-6 text-[15px] leading-relaxed text-gray-800" />
+    </>
+  );
 });
 MemoizedEditor.displayName = "MemoizedEditor";
 
