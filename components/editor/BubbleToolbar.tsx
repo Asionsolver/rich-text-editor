@@ -82,6 +82,12 @@ export const BubbleToolbar = ({ editor }: { editor: Editor | null }) => {
       shouldShow={({ editor, state }) => {
         if (isHidden) return false;
         const { selection } = state;
+        
+        // Prevent bubble menu from showing when an image is selected
+        if (editor.isActive("image") || editor.isActive("customImage")) {
+          return false;
+        }
+
         return !selection.empty && editor.isFocused;
       }}
       className={`flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-xl px-2 py-1.5 z-50 transition-all ${isHidden ? "hidden" : ""}`}
