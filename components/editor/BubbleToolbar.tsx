@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import { Editor } from "@tiptap/react";
 import {
@@ -27,6 +27,22 @@ import {
 export const BubbleToolbar = ({ editor }: { editor: Editor | null }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [recentColors, setRecentColors] = useState<string[]>([]);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const handleHide = () => setIsHidden(true);
+    window.addEventListener("hide-bubble-menu", handleHide);
+    return () => window.removeEventListener("hide-bubble-menu", handleHide);
+  }, []);
+
+  useEffect(() => {
+    if (!editor) return;
+    const handleSelection = () => setIsHidden(false);
+    editor.on("selectionUpdate", handleSelection);
+    return () => {
+      editor.off("selectionUpdate", handleSelection);
+    };
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -63,8 +79,12 @@ export const BubbleToolbar = ({ editor }: { editor: Editor | null }) => {
   return (
     <BubbleMenu
       editor={editor}
-      options={{ duration: 100 }}
-      className="flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-xl px-2 py-1.5 z-50 transition-all"
+      shouldShow={({ editor, state }) => {
+        if (isHidden) return false;
+        const { selection } = state;
+        return !selection.empty && editor.isFocused;
+      }}
+      className={`flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-xl px-2 py-1.5 z-50 transition-all ${isHidden ? "hidden" : ""}`}
     >
       {/* Format Selection */}
       <Dropdown

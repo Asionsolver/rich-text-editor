@@ -78,15 +78,24 @@ export default function Toolbar() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-gray-200 bg-white">
+    <div 
+      className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-gray-200 bg-white"
+      onMouseDown={() => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("hide-bubble-menu"));
+        }
+      }}
+    >
       <ToolbarButton
         tooltip="Undo"
+        shortcut="Mod+Z"
         onClick={() => editor.chain().focus().undo().run()}
       >
         <Undo className="w-[18px] h-[18px]" strokeWidth={2.5} />
       </ToolbarButton>
       <ToolbarButton
         tooltip="Redo"
+        shortcut="Mod+Shift+Z"
         onClick={() => editor.chain().focus().redo().run()}
       >
         <Redo className="w-[18px] h-[18px]" strokeWidth={2.5} />
@@ -189,6 +198,7 @@ export default function Toolbar() {
 
       <ToolbarButton
         tooltip="Indent / Blockquote"
+        shortcut="Mod+Shift+B"
         isActive={editor.isActive("blockquote")}
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
       >
@@ -197,6 +207,7 @@ export default function Toolbar() {
 
       <ToolbarButton
         tooltip="Code Block"
+        shortcut="Mod+Alt+C"
         isActive={editor.isActive("codeBlock")}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
       >
@@ -257,6 +268,7 @@ export default function Toolbar() {
 
       <ToolbarButton
         tooltip="Bold"
+        shortcut="Mod+B"
         isActive={editor.isActive("bold")}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
@@ -264,6 +276,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Italic"
+        shortcut="Mod+I"
         isActive={editor.isActive("italic")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
@@ -271,6 +284,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Strikethrough"
+        shortcut="Mod+Shift+X"
         isActive={editor.isActive("strike")}
         onClick={() => editor.chain().focus().toggleStrike().run()}
       >
@@ -278,6 +292,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Code"
+        shortcut="Mod+E"
         isActive={editor.isActive("code")}
         onClick={() => editor.chain().focus().toggleCode().run()}
       >
@@ -285,6 +300,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Underline"
+        shortcut="Mod+U"
         isActive={editor.isActive("underline")}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
@@ -317,6 +333,7 @@ export default function Toolbar() {
 
       <ToolbarButton
         tooltip="Superscript"
+        shortcut="Mod+."
         isActive={editor.isActive("superscript")}
         onClick={() => editor.chain().focus().toggleSuperscript().run()}
       >
@@ -324,6 +341,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Subscript"
+        shortcut="Mod+,"
         isActive={editor.isActive("subscript")}
         onClick={() => editor.chain().focus().toggleSubscript().run()}
       >
@@ -334,6 +352,7 @@ export default function Toolbar() {
 
       <ToolbarButton
         tooltip="Align Left"
+        shortcut="Mod+Shift+L"
         isActive={editor.isActive({ textAlign: "left" })}
         onClick={() => editor.chain().focus().setTextAlign("left").run()}
       >
@@ -341,6 +360,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Align Center"
+        shortcut="Mod+Shift+E"
         isActive={editor.isActive({ textAlign: "center" })}
         onClick={() => editor.chain().focus().setTextAlign("center").run()}
       >
@@ -348,6 +368,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Align Right"
+        shortcut="Mod+Shift+R"
         isActive={editor.isActive({ textAlign: "right" })}
         onClick={() => editor.chain().focus().setTextAlign("right").run()}
       >
@@ -355,6 +376,7 @@ export default function Toolbar() {
       </ToolbarButton>
       <ToolbarButton
         tooltip="Align Justify"
+        shortcut="Mod+Shift+J"
         isActive={editor.isActive({ textAlign: "justify" })}
         onClick={() => editor.chain().focus().setTextAlign("justify").run()}
       >

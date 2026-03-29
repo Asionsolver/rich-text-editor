@@ -5,18 +5,49 @@ import { ChevronDown, Check, Plus, DropletOff, Baseline, Highlighter } from "luc
 import { HexColorPicker } from "react-colorful";
 import { Editor } from "@tiptap/react";
 
+export const MenuTooltip = ({ tooltip, shortcut }: { tooltip: string; shortcut?: string }) => {
+  const [isMac, setIsMac] = useState(false);
+  useEffect(() => {
+    setIsMac(navigator.userAgent.includes("Mac"));
+  }, []);
+
+  return (
+    <div className="absolute top-[calc(100%+6px)] left-1/2 -translate-x-1/2 scale-95 opacity-0 pointer-events-none group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-[11px] font-medium px-2.5 py-1.5 rounded-md shadow-lg whitespace-nowrap z-50 flex flex-col items-center gap-1.5 leading-none">
+      <span>{tooltip}</span>
+      {shortcut && (
+        <div className="flex items-center gap-[3px] text-[10px] text-gray-300 font-sans tracking-wide mt-0.5">
+          {shortcut.split("+").map((part, i) => {
+            const displayPart =
+              part === "Mod" ? (isMac ? "⌘" : "Ctrl") :
+              part === "Shift" ? (isMac ? "⇧" : "Shift") :
+              part === "Alt" ? (isMac ? "⌥" : "Alt") :
+              part;
+            return (
+              <kbd key={i} className="bg-gray-800 border border-gray-700 px-1 py-[2px] rounded-sm min-w-[18px] text-center shadow-sm">
+                {displayPart}
+              </kbd>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ToolbarButton = ({
   isActive,
   onClick,
   children,
   className = "",
   tooltip,
+  shortcut,
 }: {
   isActive?: boolean;
   onClick: () => void;
   children: React.ReactNode;
   className?: string;
   tooltip?: string;
+  shortcut?: string;
 }) => (
   <div className="relative group flex items-center justify-center">
     <button
@@ -33,14 +64,9 @@ export const ToolbarButton = ({
     >
       {children}
     </button>
-    {tooltip && (
-      <div className="absolute top-[calc(100%+6px)] left-1/2 -translate-x-1/2 scale-95 opacity-0 pointer-events-none group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-[11px] font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-        {tooltip}
-      </div>
-    )}
+    {tooltip && <MenuTooltip tooltip={tooltip} shortcut={shortcut} />}
   </div>
 );
-
 export const Dropdown = ({
   trigger,
   children,
@@ -48,6 +74,7 @@ export const Dropdown = ({
   onToggle,
   onClose,
   tooltip,
+  shortcut,
 }: {
   trigger: React.ReactNode;
   children: React.ReactNode;
@@ -55,6 +82,7 @@ export const Dropdown = ({
   onToggle: () => void;
   onClose: () => void;
   tooltip?: string;
+  shortcut?: string;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -94,9 +122,7 @@ export const Dropdown = ({
       </button>
 
       {tooltip && !isOpen && (
-        <div className="absolute top-[calc(100%+6px)] left-1/2 -translate-x-1/2 scale-95 opacity-0 pointer-events-none group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-gray-900 text-white text-[11px] font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-          {tooltip}
-        </div>
+        <MenuTooltip tooltip={tooltip} shortcut={shortcut} />
       )}
 
       {isOpen && (
