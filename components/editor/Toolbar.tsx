@@ -105,7 +105,7 @@ export default function Toolbar() {
 
   return (
     <div
-      className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-gray-200 bg-white"
+      className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-200 bg-white"
       onMouseDown={() => {
         if (typeof window !== "undefined") {
           window.dispatchEvent(new Event("hide-bubble-menu"));
