@@ -50,14 +50,36 @@ export default function Toolbar() {
 
   const closeDropdown = () => setOpenDropdown(null);
 
-  const handleColorChange = (color: string, type: 'text' | 'highlight') => {
-    if (type === 'text') {
+  const handleToggleInlineCode = () => {
+    const codeMark = editor.schema.marks.code;
+    const { from, to } = editor.state.selection;
+
+    editor.chain().focus().toggleCode().run();
+
+    // Keep code styling on real text while removing it from whitespace-only nodes.
+    if (!codeMark) return;
+    const tr = editor.state.tr;
+
+    editor.state.doc.nodesBetween(from, to, (node, pos) => {
+      if (!node.isText) return;
+      if (!node.text?.trim()) {
+        tr.removeMark(pos, pos + node.nodeSize, codeMark);
+      }
+    });
+
+    if (tr.docChanged) {
+      editor.view.dispatch(tr);
+    }
+  };
+
+  const handleColorChange = (color: string, type: "text" | "highlight") => {
+    if (type === "text") {
       editor.chain().focus().setColor(color).run();
     } else {
       editor.chain().focus().setHighlight({ color }).run();
     }
-    setRecentColors(prev => {
-      const next = [color, ...prev.filter(c => c !== color)].slice(0, 10);
+    setRecentColors((prev) => {
+      const next = [color, ...prev.filter((c) => c !== color)].slice(0, 10);
       return next;
     });
     closeDropdown();
@@ -69,7 +91,11 @@ export default function Toolbar() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        editor.chain().focus().insertContent({ type: "customImage", attrs: { src: result } }).run();
+        editor
+          .chain()
+          .focus()
+          .insertContent({ type: "customImage", attrs: { src: result } })
+          .run();
       };
       reader.readAsDataURL(file);
       // Reset input value so the same file (or consecutive files) can be selected again
@@ -78,7 +104,7 @@ export default function Toolbar() {
   };
 
   return (
-    <div 
+    <div
       className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-gray-200 bg-white"
       onMouseDown={() => {
         if (typeof window !== "undefined") {
@@ -223,14 +249,23 @@ export default function Toolbar() {
         tooltip="Text Color"
         trigger={
           <div className="flex flex-col items-center justify-center gap-[1px] w-[18px]">
-            <Baseline className="w-[16px] h-[16px] text-[#4B5563]" strokeWidth={2.5} />
-            <div className="w-full h-[3px] rounded-sm" style={{ backgroundColor: editor.getAttributes('textStyle').color || '#000000' }} />
+            <Baseline
+              className="w-[16px] h-[16px] text-[#4B5563]"
+              strokeWidth={2.5}
+            />
+            <div
+              className="w-full h-[3px] rounded-sm"
+              style={{
+                backgroundColor:
+                  editor.getAttributes("textStyle").color || "#000000",
+              }}
+            />
           </div>
         }
       >
-        <ColorPickerOptions 
-          color={editor.getAttributes('textStyle').color}
-          onChange={(c) => handleColorChange(c, 'text')}
+        <ColorPickerOptions
+          color={editor.getAttributes("textStyle").color}
+          onChange={(c) => handleColorChange(c, "text")}
           onClear={() => {
             editor.chain().focus().unsetColor().run();
             closeDropdown();
@@ -247,14 +282,23 @@ export default function Toolbar() {
         tooltip="Highlight Color"
         trigger={
           <div className="flex flex-col items-center justify-center gap-[1px] w-[18px]">
-            <Highlighter className="w-[16px] h-[16px] text-[#4B5563]" strokeWidth={2.5} />
-            <div className="w-full h-[3px] rounded-sm" style={{ backgroundColor: editor.getAttributes('highlight').color || 'transparent' }} />
+            <Highlighter
+              className="w-[16px] h-[16px] text-[#4B5563]"
+              strokeWidth={2.5}
+            />
+            <div
+              className="w-full h-[3px] rounded-sm"
+              style={{
+                backgroundColor:
+                  editor.getAttributes("highlight").color || "transparent",
+              }}
+            />
           </div>
         }
       >
-        <ColorPickerOptions 
-          color={editor.getAttributes('highlight').color}
-          onChange={(c) => handleColorChange(c, 'highlight')}
+        <ColorPickerOptions
+          color={editor.getAttributes("highlight").color}
+          onChange={(c) => handleColorChange(c, "highlight")}
           onClear={() => {
             editor.chain().focus().unsetHighlight().run();
             closeDropdown();
@@ -294,7 +338,7 @@ export default function Toolbar() {
         tooltip="Code"
         shortcut="Mod+E"
         isActive={editor.isActive("code")}
-        onClick={() => editor.chain().focus().toggleCode().run()}
+        onClick={handleToggleInlineCode}
       >
         <Code className="w-[18px] h-[18px]" strokeWidth={2.5} />
       </ToolbarButton>
