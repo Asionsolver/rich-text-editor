@@ -5,9 +5,14 @@ import { Monitor, Smartphone } from "lucide-react";
 import { useEmailEditor } from "../editor/EditorProvider";
 
 export default function PreviewPanel() {
-  const { metadata, previewMode, setPreviewMode, htmlContent } = useEmailEditor();
+  const { metadata, previewMode, setPreviewMode, htmlContent } =
+    useEmailEditor();
 
   const isMobile = previewMode === "mobile";
+  const previewHtml = React.useMemo(() => {
+    // Keep editor-intended blank lines visible in preview.
+    return htmlContent.replace(/<p(?:\s[^>]*)?>\s*<\/p>/gi, "<p><br></p>");
+  }, [htmlContent]);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
@@ -48,8 +53,12 @@ export default function PreviewPanel() {
             <div className="w-12 h-12 rounded-full bg-gray-200 shrink-0" />
             <div className="flex flex-col">
               <div className="text-[15px]">
-                <span className="font-semibold text-gray-900">{metadata.name}</span>
-                <span className="text-gray-500 ml-1">&lt;{metadata.fromEmail}&gt;</span>
+                <span className="font-semibold text-gray-900">
+                  {metadata.name}
+                </span>
+                <span className="text-gray-500 ml-1">
+                  &lt;{metadata.fromEmail}&gt;
+                </span>
               </div>
               <div className="text-[15px] text-gray-900 font-medium mt-0.5">
                 {metadata.subject}
@@ -63,7 +72,8 @@ export default function PreviewPanel() {
           {/* Email Body HTML */}
           <div
             className="p-6 text-[15px] text-gray-800 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 [&_a]:text-blue-600 [&_a]:underline prose prose-sm max-w-none wrap-break-word"
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
+            style={{ whiteSpace: "break-spaces" }}
+            dangerouslySetInnerHTML={{ __html: previewHtml }}
           />
         </div>
       </div>
